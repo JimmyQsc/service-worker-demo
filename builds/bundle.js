@@ -443,7 +443,7 @@
 	            fetch(this.feedsUrl).then(_utils.checkStatus).then(_utils.toJson).then(function (data) {
 	                return self._renderFeeds(data);
 	            }).catch(function (error) {
-	                console.log(error);
+	                return console.log(error);
 	            });
 	        }
 	    }, {
