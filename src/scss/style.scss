@@ -1,0 +1,63 @@
+body {
+    font-family: Arial;
+    margin: 0;
+    padding: 0;
+}
+* {
+    box-sizing: border-box;
+}
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+header {
+    margin: 0;
+    height: 60px;
+    background: #8B7E7F;
+
+    .container {
+        position: relative;
+    }
+    .title {
+        margin: 0;
+        color: #fff;
+        span {
+            font-size: 26px;
+            line-height: 60px;
+            position: absolute;
+        }
+        img {
+            height: 50px;
+            margin-top: 5px;
+            padding: 0 20px;
+        }
+    }
+
+    .refresh-button {
+        width: 30px;
+        height: 30px;
+        background: url('/public/assets/images/refresh.svg');
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        border: none;
+
+    }
+}
+
+.feeds {
+    .feeds-list {
+        list-style: none;
+        margin: 0;
+        padding: 0 1em;
+        li {
+            box-shadow: 1px 0 10px #bbb;
+            padding: 1em;
+            margin: 1em 0;
+        }
+    }
+    img {
+        max-width: 100%;
+    }
+}
