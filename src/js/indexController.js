@@ -6,14 +6,32 @@ import {$on} from './utils.js';
 import {$prepend} from './utils.js';
 import idb from 'idb';
 
+
 export default class IndexController {
     constructor() {
         this.template = new Template();
         this.feedsUrl = 'https://newsapi.org/v1/articles?source=techcrunch&sortBy=latest&apiKey=a9f426d48c7b4c6192affe4ce2c18b2c';
         this.container = qs('.feeds-list', qs('.feeds'));
+        this._openDatabase();
+        this._showCachedArticles();
         this._getFeeds();
         this._clickToRefresh();
         this._registerServiceWorker();
+
+    }
+
+    _openDatabase() {
+        // 有service worker再创建数据库
+        if (!navigator.serviceWorker) {
+            return Promise.resolve();
+        }
+
+        this._dbPromise = idb.open('TechNews', 1, upgradeDB => {
+            let store = upgradeDB.createObjectStore('articles', {
+                keyPath: 'title'
+            });
+            store.createIndex('time', 'publishedAt');
+        });
     }
 
     _clickToRefresh() {
@@ -34,24 +52,62 @@ export default class IndexController {
     }
 
     _extractNew(data) {
-        if (this.latestfeed) {
+        if (this._latestfeed) {
             let feeds = data.articles;
-            let latestfeed = this.latestfeed;
+            let latestfeed = this._latestfeed;
             data.articles = feeds.filter((item) => {
                 return Date.parse(item.publishedAt) > Date.parse(latestfeed.publishedAt);
             });
         }
-        return Promise.resolve(data);
+        this._cacheArticles(data.articles);
+        return Promise.resolve(data.articles);
     }
 
     _renderFeeds(data) {
-        let feeds = data.articles;
+        let feeds = data;
         if (feeds.length) {
-            this.latestfeed = feeds[0];
+            this._latestfeed = feeds[0];
         }
         $prepend(this.container, this.template.feedsList(feeds));
     }
 
+    _cacheArticles(articles) {
+        // cache the new articles in indexedDB
+        this._dbPromise.then((db) => {
+            if (!db) return;
+
+            var tx = db.transaction('articles', 'readwrite');
+            var store = tx.objectStore('articles');
+            articles.forEach(function(article) {
+                store.put(article);
+            });
+
+            store.index('time').openCursor(null, 'prev').then((cursor) => {
+                return cursor.advance(50);
+            }).then(function deleteRest(cursor) {
+                if (!cursor) return;
+                cursor.delete();
+                return cursor.continue().then(deleteRest);
+            });
+        });
+    }
+
+    _showCachedArticles() {
+        let self = this;
+        this._dbPromise.then((db) => {
+            if (!db || self.container.children.length) {
+                return;
+            }
+            let index = db.transaction('articles').objectStore('articles').index('time');
+
+            index.getAll().then((articles) => {
+                articles.sort((a, b) => {
+                    return Date.parse(b.publishedAt) - Date.parse(a.publishedAt);
+                });
+                self._renderFeeds(articles);
+            });
+        });
+    }
     /****************** service worker related *******************/
     // 注册serviceWorker
     _registerServiceWorker() {
