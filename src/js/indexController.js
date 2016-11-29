@@ -118,7 +118,7 @@ export default class IndexController {
 
         let self = this;
 
-        navigator.serviceWorker.register('/serviceWorker.js').then(function(reg) {
+        navigator.serviceWorker.register('/service-worker-demo/serviceWorker.js').then(function(reg) {
             // 如果当前页面没有被service worker控制，也就不必处理更新了
             if (!navigator.serviceWorker.controller) {
                 return;
