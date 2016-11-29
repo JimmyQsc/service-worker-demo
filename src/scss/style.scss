@@ -58,17 +58,17 @@ header {
         margin: 0;
         padding: 0 1em;
 
-        a {
-            display: block;
-            color: #666;
-            text-decoration: none;
-        }
         li {
             box-shadow: 1px 1px 10px #bbb;
             padding: 1em;
             margin: 1em 0;
             .publishedAt {
                 float: right;
+            }
+            a {
+                color: #EA4540;
+                text-decoration: none;
+                font-style: italic;
             }
         }
     }

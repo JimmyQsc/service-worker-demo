@@ -13,6 +13,7 @@ export default class IndexController {
         this.container = qs('.feeds-list', qs('.feeds'));
         this._getFeeds();
         this._clickToRefresh();
+        this._registerServiceWorker();
     }
 
     _clickToRefresh() {
