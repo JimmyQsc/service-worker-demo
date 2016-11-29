@@ -15,6 +15,10 @@ header {
     margin: 0;
     height: 60px;
     background: #8B7E7F;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    box-shadow: 0 0 15px #999;
 
     .container {
         position: relative;
@@ -37,7 +41,7 @@ header {
     .refresh-button {
         width: 30px;
         height: 30px;
-        background: url('/public/assets/images/refresh.svg');
+        background: url('../images/refresh.svg');
         position: absolute;
         top: 15px;
         right: 20px;
@@ -47,14 +51,25 @@ header {
 }
 
 .feeds {
+    margin-top: 75px;
     .feeds-list {
+
         list-style: none;
         margin: 0;
         padding: 0 1em;
+
         li {
-            box-shadow: 1px 0 10px #bbb;
+            box-shadow: 1px 1px 10px #bbb;
             padding: 1em;
             margin: 1em 0;
+            .publishedAt {
+                float: right;
+            }
+            a {
+                color: #EA4540;
+                text-decoration: none;
+                font-style: italic;
+            }
         }
     }
     img {

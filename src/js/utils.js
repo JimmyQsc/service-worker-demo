@@ -17,3 +17,14 @@ export function qs(selector, scope) {
 export function $on(target, type, callback, capture) {
     target.addEventListener(type, callback, !!capture);
 }
+
+const contextRange = document.createRange();
+contextRange.setStart(document.body, 0);
+
+export function strToEls(str) {
+    return contextRange.createContextualFragment(str);
+}
+
+export function $prepend(target, el) {
+    return target.insertBefore(el, target.firstChild);
+}
