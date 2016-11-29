@@ -90,6 +90,8 @@ export default class IndexController {
                 return cursor.continue().then(deleteRest);
             });
         });
+
+        this._syncImageCache();
     }
 
     _showCachedArticles() {
@@ -105,6 +107,37 @@ export default class IndexController {
                     return Date.parse(b.publishedAt) - Date.parse(a.publishedAt);
                 });
                 self._renderFeeds(articles);
+            });
+        });
+    }
+
+    // 使文章缓存和图片缓存一直
+    _syncImageCache() {
+        return this._dbPromise.then(function(db) {
+            if (!db) return;
+
+            let imagesNeeded = [];
+
+            let tx = db.transaction('articles');
+            return tx.objectStore('articles').getAll().then((articles) => {
+                articles.forEach((article) => {
+                    if (article.urlToImage) {
+                        const imageUrl = new URL(article.urlToImage);
+                        const cacheUrl = imageUrl.origin + imageUrl.pathname;
+                        imagesNeeded.push(cacheUrl);
+                    }
+                });
+
+                return caches.open('TechNews-image-cache').then((cache) => {
+                    return cache.keys().then((requests) => {
+                        requests.forEach((request) => {
+                            console.log(request);
+                            if (!imagesNeeded.includes(request.url)) {
+                                cache.delete(request);
+                            }
+                        });
+                    });
+                });
             });
         });
     }
