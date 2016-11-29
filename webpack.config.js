@@ -1,7 +1,9 @@
-var path = require('path');
+const path = require('path');
 
 module.exports = {
-    entry: './src/js/app.js',
+    entry: {
+        app: './src/js/app.js'
+    },
     output: {
         path: path.resolve('./builds/'),
         publicPath: '/public/assets/js/',
@@ -17,8 +19,19 @@ module.exports = {
             {
                 test: /\.scss/,
                 loader: 'style!css!sass'
+            },
+            {
+                test: /\.html/,
+                loader: 'html'
+            },
+            {
+                test: /\.(png|gif|jpe?g|svg)$/i,
+                loader: 'url?limit=10000'
             }
         ]
     },
-    watch: true
+    devServer: {
+        port: 9000
+    },
+    devtool: 'inline-source-map'
 };
