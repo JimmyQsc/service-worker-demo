@@ -37,10 +37,6 @@ export default class IndexController {
             unsupports.push('cache API');
         }
 
-        if (!window.Promise) {
-            unsupports.push('promise');
-        }
-
         if (unsupports.length) {
             new Toast({
                 message: '你的浏览器不支持' + unsupports.join(',')
