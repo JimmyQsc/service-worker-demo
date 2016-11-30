@@ -17,7 +17,6 @@ export default class IndexController {
         this._getFeeds();
         this._clickToRefresh();
         this._registerServiceWorker();
-
     }
 
     _openDatabase() {
