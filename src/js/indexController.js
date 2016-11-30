@@ -5,6 +5,7 @@ import Template from './template.js';
 import {$on} from './utils.js';
 import {$prepend} from './utils.js';
 import idb from 'idb';
+import Toast from './toast.js';
 
 
 export default class IndexController {
@@ -12,11 +13,39 @@ export default class IndexController {
         this.template = new Template();
         this.feedsUrl = 'https://newsapi.org/v1/articles?source=techcrunch&sortBy=latest&apiKey=a9f426d48c7b4c6192affe4ce2c18b2c';
         this.container = qs('.feeds-list', qs('.feeds'));
+        this.toastContainer = qs('.toast-container');
+        this._detectFeature();
         this._openDatabase();
         this._showCachedArticles();
         this._getFeeds();
         this._clickToRefresh();
         this._registerServiceWorker();
+    }
+
+    _detectFeature() {
+        let unsupports = [];
+
+        if (!navigator.serviceWorker) {
+            unsupports.push('Service worker');
+        }
+
+        if (!window.fetch) {
+            unsupports.push('fetch API');
+        }
+
+        if (!window.caches) {
+            unsupports.push('cache API');
+        }
+
+        if (!window.Promise) {
+            unsupports.push('promise');
+        }
+
+        if (unsupports.length) {
+            new Toast({
+                message: '你的浏览器不支持' + unsupports.join(',')
+            });
+        }
     }
 
     _openDatabase() {
@@ -65,9 +94,13 @@ export default class IndexController {
 
     _renderFeeds(data) {
         let feeds = data;
-        if (feeds.length) {
-            this._latestfeed = feeds[0];
+        if (!feeds.length) {
+            new Toast({
+                message: '还没有新文章'
+            });
+            return;
         }
+        this._latestfeed = feeds[0];
         $prepend(this.container, this.template.feedsList(feeds));
     }
 
@@ -194,7 +227,18 @@ export default class IndexController {
     }
 
     _updateWorker(sw) {
-        sw.postMessage('skipWaiting');
+        new Toast({
+            message: '检测到更新。点击更新刷新页面',
+            type: 'success',
+            customButtons: [
+                {
+                    text: '更新',
+                    onClick: function() {
+                        sw.postMessage('skipWaiting');
+                    }
+                }
+            ]
+        });
     }
 
 }
