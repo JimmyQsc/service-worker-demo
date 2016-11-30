@@ -84,6 +84,12 @@ export default class IndexController {
                 return Date.parse(item.publishedAt) > Date.parse(latestfeed.publishedAt);
             });
         }
+        if (!data.articles.length) {
+            new Toast({
+                message: '还没有新文章。'
+            });
+            return Promise.resolve([]);
+        }
         this._cacheArticles(data.articles);
         return Promise.resolve(data.articles);
     }
@@ -91,9 +97,6 @@ export default class IndexController {
     _renderFeeds(data) {
         let feeds = data;
         if (!feeds.length) {
-            new Toast({
-                message: '还没有新文章'
-            });
             return;
         }
         this._latestfeed = feeds[0];
