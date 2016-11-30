@@ -1,9 +1,8 @@
-const staticCache = 'TechNews-static-v15';
+const staticCache = 'TechNews-static-v20';
 const contentImageCache = 'TechNews-image-cache';
 
 // 安装时缓存资源
 self.addEventListener('install', (event) => {
-    console.log('installing');
     event.waitUntil(
         caches.open(staticCache).then((cache) => {
             return cache.addAll([
@@ -60,6 +59,7 @@ self.addEventListener('message', (event) => {
     }
 });
 
+// 缓存图片
 function cacheImage(request) {
     const requestUrl = new URL(request.url);
     const cacheUrl = requestUrl.origin + requestUrl.pathname;
