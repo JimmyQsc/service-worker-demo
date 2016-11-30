@@ -20,6 +20,30 @@ export default class IndexController {
 
     }
 
+    _detectFeature() {
+        let unsupports = [];
+
+        if (!navigator.seviceWorker) {
+            unsupports.push('Service worker');
+        }
+
+        if (!window.fetch) {
+            unsupports.push('fetch API');
+        }
+
+        if (!window.caches) {
+            unsupports.push('cache API');
+        }
+
+        if (!window.Promise) {
+            unsupports.push('promise');
+        }
+
+        if (unsupports.length) {
+
+        }
+    }
+
     _openDatabase() {
         // 有service worker再创建数据库
         if (!navigator.serviceWorker) {
