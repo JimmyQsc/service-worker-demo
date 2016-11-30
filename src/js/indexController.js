@@ -23,7 +23,8 @@ export default class IndexController {
     _openDatabase() {
         // 有service worker再创建数据库
         if (!navigator.serviceWorker) {
-            return Promise.resolve();
+            this._dbPromise = Promise.resolve();
+            return;
         }
 
         this._dbPromise = idb.open('TechNews', 1, upgradeDB => {
