@@ -15,13 +15,17 @@ export default class IndexController {
         this.container = qs('.feeds-list', qs('.feeds'));
         this.toastContainer = qs('.toast-container');
         this._detectFeature();
+        // 创建数据库空间
         this._openDatabase();
+        // 首先显示缓存的资源
         this._showCachedArticles();
+        // 请求网络
         this._getFeeds();
         this._clickToRefresh();
         this._registerServiceWorker();
     }
 
+    // 功能检测
     _detectFeature() {
         let unsupports = [];
 
@@ -50,7 +54,7 @@ export default class IndexController {
             this._dbPromise = Promise.resolve();
             return;
         }
-
+        // 打开数据库，后面的callback在第一次打开或数据库升级时会执行
         this._dbPromise = idb.open('TechNews', 1, upgradeDB => {
             let store = upgradeDB.createObjectStore('articles', {
                 keyPath: 'title'
@@ -84,6 +88,13 @@ export default class IndexController {
                 return Date.parse(item.publishedAt) > Date.parse(latestfeed.publishedAt);
             });
         }
+        if (!data.articles.length) {
+            new Toast({
+                message: '还没有新文章'
+            });
+            return Promise.resolve([]);
+        }
+        // 缓存新文章
         this._cacheArticles(data.articles);
         return Promise.resolve(data.articles);
     }
@@ -91,9 +102,6 @@ export default class IndexController {
     _renderFeeds(data) {
         let feeds = data;
         if (!feeds.length) {
-            new Toast({
-                message: '还没有新文章'
-            });
             return;
         }
         this._latestfeed = feeds[0];
@@ -101,7 +109,6 @@ export default class IndexController {
     }
 
     _cacheArticles(articles) {
-        // cache the new articles in indexedDB
         this._dbPromise.then((db) => {
             if (!db) return;
 
@@ -110,7 +117,7 @@ export default class IndexController {
             articles.forEach(function(article) {
                 store.put(article);
             });
-
+            // 最多存50条
             store.index('time').openCursor(null, 'prev').then((cursor) => {
                 return cursor.advance(50);
             }).then(function deleteRest(cursor) {
@@ -123,6 +130,7 @@ export default class IndexController {
         this._syncImageCache();
     }
 
+    // 显示已缓存的文章
     _showCachedArticles() {
         let self = this;
         this._dbPromise.then((db) => {
@@ -132,6 +140,7 @@ export default class IndexController {
             let index = db.transaction('articles').objectStore('articles').index('time');
 
             index.getAll().then((articles) => {
+                // 按时间排序
                 articles.sort((a, b) => {
                     return Date.parse(b.publishedAt) - Date.parse(a.publishedAt);
                 });
@@ -140,7 +149,7 @@ export default class IndexController {
         });
     }
 
-    // 使文章缓存和图片缓存一直
+    // 使文章缓存和图片缓存一致
     _syncImageCache() {
         return this._dbPromise.then(function(db) {
             if (!db) return;
@@ -186,7 +195,7 @@ export default class IndexController {
                 return;
             }
 
-            // 如果有 service worker正在等待被激活，说明新的service worker安装成功，update ready
+            // 如果有 service worker正在等待被激活，说明新的service worker安装成功，通知用户更新
             if (reg.waiting) {
                 self._updateWorker(reg.waiting);
                 return;
@@ -213,15 +222,20 @@ export default class IndexController {
         });
     }
 
+    // 跟踪安装状态
     _trackInstalling(sw) {
         let self = this;
         sw.addEventListener('statechange', function() {
+            new Toast({
+                message: 'ServiceWorker:' + sw.state
+            });
             if (sw.state == 'installed') {
                 self._updateWorker(sw);
             }
         });
     }
 
+    // 通知用户更新
     _updateWorker(sw) {
         new Toast({
             message: '检测到更新。点击更新刷新页面',

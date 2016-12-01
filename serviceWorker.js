@@ -1,9 +1,10 @@
-const staticCache = 'TechNews-static-v21';
+const staticCache = 'TechNews-static-v23';
 const contentImageCache = 'TechNews-image-cache';
 
 // 安装时缓存资源
 self.addEventListener('install', (event) => {
     event.waitUntil(
+        // 打开缓存空间
         caches.open(staticCache).then((cache) => {
             return cache.addAll([
                 './favicons/favicon-16x16.png',
@@ -53,6 +54,7 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
+// 监听页面发来的信息
 self.addEventListener('message', (event) => {
     if (event.data == 'skipWaiting') {
         self.skipWaiting();
@@ -63,7 +65,7 @@ self.addEventListener('message', (event) => {
 function cacheImage(request) {
     const requestUrl = new URL(request.url);
     const cacheUrl = requestUrl.origin + requestUrl.pathname;
-
+    // 打开图片缓存
     return caches.open(contentImageCache).then((cache) => {
         return cache.match(cacheUrl).then((response) => {
             if (response) {
@@ -71,6 +73,7 @@ function cacheImage(request) {
             }
 
             return fetch(request).then((response) => {
+                // 图片的response是流，所以要clone
                 cache.put(cacheUrl, response.clone());
                 return response;
             });
