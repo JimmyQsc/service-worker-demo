@@ -77,7 +77,9 @@ export default class IndexController {
             .then(toJson)
             .then((data) => self._extractNew(data))
             .then((data) => self._renderFeeds(data))
-            .catch();
+            .catch((e) => new Toast({
+                message: e
+            }));
     }
 
     _extractNew(data) {
