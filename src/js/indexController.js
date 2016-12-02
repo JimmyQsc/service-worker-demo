@@ -43,7 +43,7 @@ export default class IndexController {
 
         if (unsupports.length) {
             new Toast({
-                message: '你的浏览器不支持' + unsupports.join(',')
+                message: '你的浏览器不支持' + unsupports.join(', ')
             });
         }
     }
@@ -70,6 +70,7 @@ export default class IndexController {
         });
     }
 
+    // 从网络请求数据
     _getFeeds() {
         let self = this;
         fetch(this.feedsUrl)
@@ -78,7 +79,7 @@ export default class IndexController {
             .then((data) => self._extractNew(data))
             .then((data) => self._renderFeeds(data))
             .catch((e) => new Toast({
-                message: e
+                message: e.message
             }));
     }
 
@@ -110,6 +111,7 @@ export default class IndexController {
         $prepend(this.container, this.template.feedsList(feeds));
     }
 
+    // 缓存数据
     _cacheArticles(articles) {
         this._dbPromise.then((db) => {
             if (!db) return;
