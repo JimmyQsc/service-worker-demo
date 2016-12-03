@@ -1,4 +1,4 @@
-const staticCache = 'TechNews-static-v25';
+const staticCache = 'TechNews-static-v26';
 const contentImageCache = 'TechNews-image-cache';
 
 // 安装时缓存资源
